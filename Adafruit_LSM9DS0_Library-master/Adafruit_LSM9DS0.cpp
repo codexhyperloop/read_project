@@ -184,17 +184,17 @@ void Adafruit_LSM9DS0::getAccelEvent(sensors_event_t* event, uint32_t timestamp)
   event->acceleration.x = accelData.x * _accel_mg_lsb;
   event->acceleration.x /= 1000;
   event->acceleration.x *= SENSORS_GRAVITY_STANDARD;
-  //event->acceleration.x -= accelCalibration.x; //adjustment to get true linear acceleration
+  event->acceleration.x -= accelCalibration.x; //adjustment to get true linear acceleration
   if (event->acceleration.x < 0.5 && event->acceleration.x > -0.5) event->acceleration.x = 0;
   event->acceleration.y = accelData.y * _accel_mg_lsb;
   event->acceleration.y /= 1000;
   event->acceleration.y *= SENSORS_GRAVITY_STANDARD;
-  //event->acceleration.y -= accelCalibration.y; //adjustment to get true linear acceleration
+  event->acceleration.y -= accelCalibration.y; //adjustment to get true linear acceleration
   if (event->acceleration.y < 0.5 && event->acceleration.y > -0.5) event->acceleration.y = 0;
   event->acceleration.z = accelData.z * _accel_mg_lsb;
   event->acceleration.z /= 1000;
   event->acceleration.z *= SENSORS_GRAVITY_STANDARD;
-  //event->acceleration.z -= accelCalibration.z; //manual adjustment to get true linear acceleration
+  event->acceleration.z -= accelCalibration.z; //manual adjustment to get true linear acceleration
   if (event->acceleration.z < 0.5 && event->acceleration.z > -0.5) event->acceleration.z = 0;
   event->acceleration.magnitude = sqrt(sq(event->acceleration.x)+sq(event->acceleration.y)+sq(event->acceleration.z));
 
@@ -204,7 +204,6 @@ void Adafruit_LSM9DS0::getAccelEvent(sensors_event_t* event, uint32_t timestamp)
 void Adafruit_LSM9DS0::calcVelocity(sensors_event_t* prevAccel, sensors_event_t* accel, float timeDif) {
   // Save previous velocity for use with distance calculation
   prevVelocity = velocity;
-  
   // Calculate the velocity by integrating acceleration (trapezoidal method)
   velocity.x += (((prevAccel->acceleration.x + accel->acceleration.x)/2)*timeDif)/1000000;
   velocity.y += (((prevAccel->acceleration.y + accel->acceleration.y)/2)*timeDif)/1000000;

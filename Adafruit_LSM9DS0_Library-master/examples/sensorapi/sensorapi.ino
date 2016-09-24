@@ -16,6 +16,14 @@
    is used by default in this example).
    
    Connections
+
+   (For Udoo Quad I2C)
+   ===========
+   Connect SCL to pin 21
+   Connect SDA to pin 20
+   Connect VDD to 3V3
+   Connect GROUND to common ground
+   ===========
    
    (For default I2C)
    ===========
@@ -24,7 +32,7 @@
    Connect VDD to 5V DC
    Connect GROUND to common ground
    ===========
-
+   
    (For SPI)
    ===========
    Connect SCL to 
@@ -100,17 +108,17 @@ void setup(void)
   Serial.println("");
   delay(1000);
 
-  // Find the average error over 1024 samples and store it for calibration
+  // Find the average error over 100 samples and store it for calibration
   accelSum.acceleration.x = 0;
   accelSum.acceleration.y = 0;
   accelSum.acceleration.z = 0;
-  for (uint16_t counter = 0; counter < 1024; counter++) {
+  for (uint16_t counter = 0; counter < 100; counter++) {
     lsm.readAccel();
     lsm.getAccelEvent(&accel, millis());
     accelSum.acceleration.x += accel.acceleration.x;
     accelSum.acceleration.y += accel.acceleration.y;
     accelSum.acceleration.z += accel.acceleration.z;
-    /*Serial.print("Prev Accel X: "); Serial.print(accel.acceleration.x); Serial.print(" ");
+    /*Serial.print("Prev Accel X: "); Serial.print(accel.acceleration.x); Serial.print(" ");  //Used for debugging. Uncomment to see the accel values and sum values throughout the calibration process
     Serial.print("  \tY: "); Serial.print(accel.acceleration.y);       Serial.print(" ");
     Serial.print("  \tZ: "); Serial.print(accel.acceleration.z);     Serial.println("  \tm/s^2");
 
@@ -120,15 +128,15 @@ void setup(void)
     */
   }
 
-  accelSum.acceleration.x /= 1024;
-  accelSum.acceleration.y /= 1024;
-  accelSum.acceleration.z /= 1024;
+  accelSum.acceleration.x /= 100;
+  accelSum.acceleration.y /= 100;
+  accelSum.acceleration.z /= 100;
 
   lsm.accelCalibration.x = accelSum.acceleration.x;
   lsm.accelCalibration.y = accelSum.acceleration.y;
   lsm.accelCalibration.z = accelSum.acceleration.z;
 
-  /*Serial.print("SumAccel X: "); Serial.print(accelSum.acceleration.x); Serial.print(" ");
+  /*Serial.print("SumAccel X: "); Serial.print(accelSum.acceleration.x); Serial.print(" "); //Used for debugging. Uncomment to see the Sum for calibration process.
   Serial.print("  \tY: "); Serial.print(accelSum.acceleration.y);       Serial.print(" ");
   Serial.print("  \tZ: "); Serial.print(accelSum.acceleration.z);     Serial.println("  \tm/s^2");
   */
@@ -159,7 +167,9 @@ void loop()
   Serial.print("  \tZ: "); Serial.print(prevAccel.acceleration.z);     Serial.print(" ");
   Serial.print("\tMagnitude:"); Serial.print(accel.acceleration.magnitude); Serial.println("  \tm/s^2");
   */
-  for (uint32_t counter = 0; counter < 1000; counter++) {
+
+  //This loop is used to get values from multiple integrations without having to use the slow Serial.print functions
+  for (uint32_t counter = 0; counter < 10; counter++) {
     // ---- Get new data ----
     lsm.readAccel();
     lsm.getAccelEvent(&accel, micros());
@@ -193,7 +203,7 @@ void loop()
   Serial.print("  \nTimeDif: "); Serial.print(timeDif);
   Serial.println("\n**********************\n");
 
-  delayMicroseconds(1);
+  delay(250);
 }
 
 /**************************************************************************/
@@ -220,7 +230,8 @@ void displaySensorDetails(void)
   Serial.println(F("------------------------------------"));
   Serial.println(F(""));
 
-  Serial.println(F("------------------------------------"));
+  //These aren't used curently. No point in displaying details.
+  /*Serial.println(F("------------------------------------"));
   Serial.print  (F("Sensor:       ")); Serial.println(mag.name);
   Serial.print  (F("Driver Ver:   ")); Serial.println(mag.version);
   Serial.print  (F("Unique ID:    ")); Serial.println(mag.sensor_id);
@@ -249,6 +260,7 @@ void displaySensorDetails(void)
   Serial.print  (F("Resolution:   ")); Serial.print(temp.resolution); Serial.println(F(" C"));  
   Serial.println(F("------------------------------------"));
   Serial.println(F(""));
+  */
   
   delay(500);
 }
@@ -262,7 +274,7 @@ void configureSensor(void)
 {
   // 1.) Set the accelerometer range
   //lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_2G);
-  lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_4G);
+  lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_4G);  //Our pod will be experiencing more than 2Gs but less than 4Gs
   //lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_6G);
   //lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_8G);
   //lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_16G);
